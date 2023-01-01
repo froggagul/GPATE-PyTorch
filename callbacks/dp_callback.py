@@ -35,7 +35,6 @@ class DPCallback(Callback):
         orders = self.store.get('orders')
         rdp_counter = self.store.get('rdp_counter')
         dp_delta = self.store.get('dp_delta')
-
         eps, order = self._compute_eps_from_delta(orders, rdp_counter, dp_delta)
 
         # TODO - more kind way to get config of model params

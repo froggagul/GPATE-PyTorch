@@ -17,7 +17,7 @@ class MNISTDataset():
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,))
         ])
-        self.original_dataset = MNIST(root = './data', train = True, transform = transform, download=True)
+        self.original_dataset = MNIST(root = './data', transform = transform, download=True)
         self.split_datasets: List[Subset[MNIST]] = []
 
         self.batch_size = batch_size
@@ -31,14 +31,15 @@ class MNISTDataset():
     def split(self, dataset_number_per_teacher, teacher_number, batch_size):
         original_data_len = len(self.original_dataset)
         dataset_number = dataset_number_per_teacher * teacher_number
+        
         split_data_len = original_data_len // dataset_number
-
-        self.dataset_len = split_data_len // batch_size
-
+        print(original_data_len)
+        self.dataset_len = split_data_len // batch_size + 1
+        # print(original_data_len, split_data_len, self.dataset_len)
         self.split_datasets = random_split(
                 self.original_dataset,
                 [split_data_len for _ in range(dataset_number)]
-            )        
+            )
 
     def preprocess_y(self, data):
         ys = np.array([y for _, y in data])
@@ -53,10 +54,10 @@ class MNISTDataset():
 
 
     def get_data(self, teacher_idx, teacher_data_idx, batch_idx):
+        # print(len(self.split_datasets), teacher_idx * self.dataset_number_per_teacher + teacher_data_idx)
         split_dataset = self.split_datasets[teacher_idx * self.dataset_number_per_teacher + teacher_data_idx]
         start = self.batch_size * batch_idx
-        end = start + self.batch_size
-        
+        end = min(start + self.batch_size, len(split_dataset))
         data = [split_dataset[i] for i in range(start, end)]
         xs = torch.stack([x for x, _ in data], dim=0).to(self.device)
         ys = self.preprocess_y(data).to(self.device)
@@ -75,7 +76,7 @@ class MNISTDataset():
     def len(self):
         if len(self.split_datasets) == 0:
             return 0
-        return len(self.split_datasets[0]) // self.batch_size
+        return len(self.split_datasets[0]) // self.batch_size + 1
 
     def __repr__(self) -> str:
         return f'<MNISTDataset teacher: {self.teacher_number}, dataset_number_per_teacher: {self.dataset_number_per_teacher}>'

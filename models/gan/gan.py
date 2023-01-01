@@ -17,8 +17,8 @@ class GAN(nn.Module):
         super(GAN, self).__init__()
         self.latent_dim = 8
 
-        self.teacher_number = 10
-        self.split_data_number = 100
+        self.teacher_number = 100
+        self.split_data_number = 4000
         assert self.split_data_number % self.teacher_number == 0, "split_data_number must be multiples of teacher_number"
         self.shared_data_number_per_teacher = self.split_data_number // self.teacher_number
 
@@ -60,10 +60,10 @@ class GAN(nn.Module):
         z = torch.randn(batch_size, self.latent_dim, device=device)
         self._cached_z = z
 
-    def get_latent_vector(self):
+    def get_latent_vector(self, batch_size):
         assert self._cached_z is not None, "need to reset z first, call reset_latent_vector(x)"
 
-        return self._cached_z
+        return self._cached_z[:batch_size]
 
     def train_teacher(self, batch, teacher_idx):
         optimizer = self.optimizer_discriminators[teacher_idx]

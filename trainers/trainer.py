@@ -14,7 +14,7 @@ class Trainer():
         self.model: GAN = GAN()
         self.batch_size = 32
         self.dataset: MNISTDataset = MNISTDataset(
-                dataset_number_per_teacher=10,
+                dataset_number_per_teacher=self.model.shared_data_number_per_teacher,
                 teacher_number=self.model.teacher_number,
                 batch_size = self.batch_size
             )
@@ -48,13 +48,14 @@ class Trainer():
             for teacher_data_idx in range(self.model.shared_data_number_per_teacher):
                 for teacher_idx in range(self.model.teacher_number):
                     data = self.dataset.get_data(teacher_idx, teacher_data_idx, batch_idx)
-                    z = self.model.get_latent_vector()
+                    batch_size = data[0].shape[0]
+                    z = self.model.get_latent_vector(batch_size)
                     batch = (z, data)
                     grads = self.model.train_teacher(batch, teacher_idx)
                     total_grads.append(grads)
 
             y_label = self.dataset.get_random_label(batch_size)
-            z = self.model.get_latent_vector()
+            z = self.model.get_latent_vector(batch_size)
             batch = (z, y_label)
             self.model.train_student(total_grads, batch, self.current_epoch)
 
@@ -82,7 +83,7 @@ class Trainer():
         self._initialize_callbacks()
 
         self.dataset: MNISTDataset = MNISTDataset(
-                dataset_number_per_teacher=10,
+                dataset_number_per_teacher=self.model.shared_data_number_per_teacher,
                 teacher_number=self.model.teacher_number,
                 batch_size = self.batch_size
             )
@@ -91,7 +92,7 @@ class Trainer():
         self.model.connect_store(self.store)
 
         self.model.train()
-        epochs = 2
+        epochs = 5
         self.current_epoch = 0
         for epoch in range(epochs):
             self._step_epoch(epoch)

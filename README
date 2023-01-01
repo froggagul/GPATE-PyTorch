@@ -9,4 +9,5 @@
 ### todo
 * config management (now only supports mnist dataset)
 * log with wandb
-* 
+* pate with torch
+

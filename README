@@ -1,0 +1,12 @@
+# GPATE-PyTorch
+* Unofficial Implementation of G-PATE with pytorch
+
+## train - mnist
+```bash
+./scripts/
+```
+
+### todo
+* config management (now only supports mnist dataset)
+* log with wandb
+* 

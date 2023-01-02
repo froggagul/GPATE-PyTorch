@@ -3,7 +3,7 @@
 
 ## train - mnist
 ```bash
-./scripts/
+python scripts/train_mnist.py
 ```
 
 ### todo
